@@ -3,7 +3,6 @@ import tempfile
 import atexit
 import os
 import re
-from distutils.util import strtobool
 
 import appdirs
 
@@ -15,6 +14,15 @@ def eprint(*args, **kwargs):
 def _tempfile_deleter(path):
     if os.path.isfile(path):
         os.remove(path)
+
+
+def strtobool(value):
+    value = value.lower()
+    if value in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    if value in ("n", "no", "f", "false", "off", "0"):
+        return False
+    raise ValueError("invalid truth value {!r}".format(value))
 
 
 def tmpfile(*args, **kwargs):

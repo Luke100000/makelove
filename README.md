@@ -19,7 +19,7 @@ A packaging tool for [löve](https://love2d.org) games
 
 ## Quickstart
 
-To use makelove you need to install Python 3.7 or later and then execute (probably just `pip` on Windows):
+To use makelove you need to install Python 3.8 or later and then execute (probably just `pip` on Windows):
 
 ```
 pip3 install makelove
