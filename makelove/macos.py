@@ -3,10 +3,10 @@ import os
 import plistlib
 import struct
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from urllib.request import URLError, urlretrieve
 from zipfile import ZipFile
-from urllib.request import urlopen, urlretrieve, URLError
 
 from PIL import Image
 
@@ -19,15 +19,15 @@ def download_love(version, platform):
     would lose data about symlinks when building on windows
     """
     target_path = get_default_love_binary_dir(version, platform)
-    print("Downloading love binaries to: '{}'".format(target_path))
+    print(f"Downloading love binaries to: '{target_path}'")
 
     os.makedirs(target_path, exist_ok=True)
     try:
         download_url = get_download_url(version, platform)
-        print("Downloading '{}'..".format(download_url))
+        print(f"Downloading '{download_url}'..")
         urlretrieve(download_url, os.path.join(target_path, "love.zip"))
     except URLError as exc:
-        eprint("Could not download löve: {}".format(exc))
+        eprint(f"Could not download löve: {exc}")
         eprint(
             "If there is in fact no download on GitHub for this version, specify 'love_binaries' manually."
         )
@@ -57,7 +57,7 @@ def make_icns(iconfile, icon_image_file):
     # must all be square (width=height) and of standard pixel sizes
     width, height = icon_image.size  # a 2-tuple
     if width != height:
-        eprint("Invalid image size, discarded: %d x %d." % (width, height))
+        eprint(f"Invalid image size, discarded: {width} x {height}.")
         sys.exit(1)
 
     sizetotypes = {
@@ -112,7 +112,6 @@ def get_game_icon_content(config):
         return False
 
     with io.BytesIO() as icns_f, open(icon_file, "rb") as icon_img_f:
-        icon_key = f"{config['name']}.app/Contents/Resources/icon-{config['name']}.icns"
         if icon_file.lower().endswith(".png"):
             make_icns(icns_f, icon_img_f)
             return icns_f.getvalue()
@@ -146,7 +145,7 @@ def get_info_plist_content(config, version):
         "CFBundleShortVersionString": version or config["love_version"],
         "CFBundleName": config["name"],
         "NSHumanReadableCopyright": "© 2006-2020 LÖVE Development Team",
-        "CFBundleIdentifier": f"tld.yourgamename",
+        "CFBundleIdentifier": "tld.yourgamename", # TODO
     }
 
     if "macos" in config and "app_metadata" in config["macos"]:
@@ -161,10 +160,10 @@ def build_macos(config, version, target, target_directory, love_file_path):
         love_binaries = config[target]["love_binaries"]
     else:
         assert "love_version" in config
-        print("No love binaries specified for target {}".format(target))
+        print(f"No love binaries specified for target {target}")
         love_binaries = get_default_love_binary_dir(config["love_version"], target)
         if os.path.isdir(love_binaries):
-            print("Love binaries already present in '{}'".format(love_binaries))
+            print(f"Love binaries already present in '{love_binaries}'")
         else:
             download_love(config["love_version"], target)
 
@@ -175,13 +174,12 @@ def build_macos(config, version, target, target_directory, love_file_path):
     ) as outf, ZipFile(outf, mode="w") as app_zip, open(
         love_file_path, "rb"
     ) as love_zip:
-
         archive_files = {}
         if "archive_files" in config:
             archive_files.update(config["archive_files"])
         if "macos" in config and "archive_files" in config["macos"]:
             archive_files.update(config["macos"]["archive_files"])
-        
+
         written_archive_files = set()
         for src_path, dest_path in archive_files.items():
             path = f"{config['name']}.app/Contents/Resources/{dest_path}"
