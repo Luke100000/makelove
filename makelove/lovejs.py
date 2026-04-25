@@ -4,8 +4,9 @@ import os
 import sys
 import uuid
 from pathlib import Path
-from zipfile import ZipFile
-from urllib.request import urlretrieve, URLError
+from urllib.error import URLError
+from urllib.request import urlretrieve
+from zipfile import BadZipFile, ZipFile
 
 from .util import eprint, get_default_love_binary_dir, parse_love_version
 
@@ -15,15 +16,15 @@ def download_love(version, platform):
         eprint("love.js only supports löve 11. The web build might not be functional.")
 
     target_path = get_default_love_binary_dir(version, platform)
-    print("Downloading love binaries to: '{}'".format(target_path))
+    print(f"Downloading love binaries to: '{target_path}'")
 
     os.makedirs(target_path, exist_ok=True)
     try:
         download_url = "https://github.com/Davidobot/love.js/archive/master.zip"
-        print("Downloading '{}'..".format(download_url))
+        print(f"Downloading '{download_url}'..")
         urlretrieve(download_url, os.path.join(target_path, "love.zip"))
     except URLError as exc:
-        eprint("Could not download löve: {}".format(exc))
+        eprint(f"Could not download löve: {exc}")
         eprint(
             "If there is in fact no download on GitHub for this version, specify 'love_binaries' manually."
         )
@@ -40,15 +41,60 @@ def render_mustache(tmpl, cx):
     return tmpl.encode("utf-8")
 
 
+def get_zip_prefix(zip_file):
+    top_level_dirs = set()
+    for zipinfo in zip_file.filelist:
+        if "/" not in zipinfo.filename:
+            return ""
+        top_level_dirs.add(zipinfo.filename.split("/", 1)[0])
+    if len(top_level_dirs) == 1:
+        return top_level_dirs.pop() + "/"
+    return ""
+
+
+def has_default_binaries(path):
+    zip_path = Path(path) / "love.zip"
+    if not zip_path.is_file():
+        return False
+    try:
+        with ZipFile(zip_path, mode="r") as love_binary_zip:
+            prefix = get_zip_prefix(love_binary_zip)
+            names = love_binary_zip.namelist()
+            return all(
+                prefix + name in names
+                for name in (
+                    "src/compat/index.html",
+                    "src/game.js",
+                    "src/compat/love.js",
+                    "src/compat/love.wasm",
+                    "src/compat/theme/love.css",
+                    "src/compat/theme/bg.png",
+                )
+            )
+    except BadZipFile:
+        return False
+
+
+def write_theme_directory(app_zip, theme_directory):
+    if not os.path.isdir(theme_directory):
+        sys.exit(f"Cannot copy love.js theme directory '{theme_directory}'")
+    for root, _dirs, files in os.walk(theme_directory):
+        for filename in files:
+            path = os.path.join(root, filename)
+            relative_path = os.path.relpath(path, theme_directory).replace(os.sep, "/")
+            with open(path, "rb") as theme_file:
+                app_zip.writestr(f"theme/{relative_path}", theme_file.read())
+
+
 def build_lovejs(config, version, target, target_directory, love_file_path):
     if target in config and "love_binaries" in config[target]:
         love_binaries = config[target]["love_binaries"]
     else:
         assert "love_version" in config
-        print("No love binaries specified for target {}".format(target))
+        print(f"No love binaries specified for target {target}")
         love_binaries = get_default_love_binary_dir(config["love_version"], target)
-        if os.path.isdir(love_binaries):
-            print("Love binaries already present in '{}'".format(love_binaries))
+        if has_default_binaries(love_binaries):
+            print(f"Love binaries already present in '{love_binaries}'")
         else:
             download_love(config["love_version"], target)
 
@@ -58,7 +104,7 @@ def build_lovejs(config, version, target, target_directory, love_file_path):
     src = Path(love_binaries) / "love.zip"
     dst = Path(target_directory) / f"{config['name']}-{target}.zip"
     with ZipFile(src, mode="r") as love_binary_zip, ZipFile(dst, mode="w") as app_zip:
-        fileMetadata = [
+        file_metadata = [
             {
                 "filename": "/game.love",
                 "crunched": 0,
@@ -68,17 +114,20 @@ def build_lovejs(config, version, target, target_directory, love_file_path):
             }
         ]
 
-        prefix = love_binary_zip.filelist[0].filename
-        if not prefix.endswith("/"):
-            prefix = prefix + "/"
+        prefix = get_zip_prefix(love_binary_zip)
+        lovejs_config = config.get("lovejs", {})
         app_zip.writestr(
             "index.html",
             render_mustache(
-                love_binary_zip.read(prefix + "src/compat/index.html"),
+                (
+                    Path(lovejs_config["index_file"]).read_bytes()
+                    if "index_file" in lovejs_config
+                    else love_binary_zip.read(prefix + "src/compat/index.html")
+                ),
                 {
-                    "title": config.get("lovejs", {}).get("title", config["name"]),
+                    "title": lovejs_config.get("title", config["name"]),
                     "arguments": json.dumps(["./game.love"]),
-                    "memory": int(config.get("lovejs", {}).get("memory", "20000000")),
+                    "memory": int(lovejs_config.get("memory", "20000000")),
                 },
             ),
         )
@@ -92,26 +141,25 @@ def build_lovejs(config, version, target, target_directory, love_file_path):
                         {
                             "package_uuid": uuid.uuid4().hex,
                             "remote_package_size": len(game_data),
-                            "files": fileMetadata,
+                            "files": file_metadata,
                         }
                     ),
                 },
             ),
         )
         app_zip.writestr("game.data", game_data)
-        app_zip.writestr(
-            "love.js",
-            love_binary_zip.read(prefix + "src/compat/love.js"),
-        )
-        app_zip.writestr(
-            "love.wasm",
-            love_binary_zip.read(prefix + "src/compat/love.wasm"),
-        )
-        app_zip.writestr(
-            "theme/love.css",
-            love_binary_zip.read(prefix + "src/compat/theme/love.css"),
-        )
-        app_zip.writestr(
-            "theme/bg.png",
-            love_binary_zip.read(prefix + "src/compat/theme/bg.png"),
-        )
+        app_zip.writestr("love.js", love_binary_zip.read(prefix + "src/compat/love.js"))
+        app_zip.writestr("love.wasm", love_binary_zip.read(prefix + "src/compat/love.wasm"))
+
+        theme_directory = lovejs_config.get("theme_directory")
+        if theme_directory:
+            write_theme_directory(app_zip, theme_directory)
+        else:
+            app_zip.writestr(
+                "theme/love.css",
+                love_binary_zip.read(prefix + "src/compat/theme/love.css"),
+            )
+            app_zip.writestr(
+                "theme/bg.png",
+                love_binary_zip.read(prefix + "src/compat/theme/bg.png"),
+            )
