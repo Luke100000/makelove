@@ -39,3 +39,8 @@ Repository = "https://github.com/pfirsich/makelove"
 
 [project.scripts]
 makelove = "makelove.makelove:main"
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+]
