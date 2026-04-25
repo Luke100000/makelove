@@ -240,6 +240,9 @@ def build_windows(config, version, target, target_directory, love_file_path):
         archive_files.update(config["archive_files"])
     if "windows" in config and "archive_files" in config["windows"]:
         archive_files.update(config["windows"]["archive_files"])
+    # also add win32/win64 files
+    if target in config and "archive_files" in config[target]:
+        archive_files.update(config[target]["archive_files"])
 
     for k, v in archive_files.items():
         path = dest(v)
