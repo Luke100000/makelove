@@ -13,6 +13,7 @@ default_config_name = "makelove.toml"
 all_targets = ["win32", "win64", "appimage", "macos", "lovejs"]
 
 all_love_versions = [
+    "12.0",
     "11.5",
     "11.4",
     "11.3",
@@ -103,6 +104,10 @@ config_params = {
         {
             "title": val.String(),
             "memory": val.String(),
+            "index_file": val.Path(),
+            "theme_directory": val.Path(),
+            "love_js_file": val.Path(),
+            "love_wasm_file": val.Path(),
         }
     ),
 }
