@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 import argparse
-import os
-import shutil
-import sys
+import functools
+import http.server
 import json
+import os
+import re
+import shutil
+import socketserver
 import subprocess
+import sys
+import webbrowser
+import zipfile
 from email.utils import formatdate
 from importlib.metadata import PackageNotFoundError, version as package_version
-import zipfile
-import re
 
 from .config import get_config, all_targets, init_config_assistant
 from .hooks import execute_hook
@@ -192,6 +196,76 @@ def get_targets(args, config):
     return targets
 
 
+def extract_archive(archive_path, output_directory):
+    if os.path.isdir(output_directory):
+        shutil.rmtree(output_directory)
+    os.makedirs(output_directory)
+    with zipfile.ZipFile(archive_path) as archive:
+        archive.extractall(output_directory)
+
+
+def open_windows_build(config, target, target_directory):
+    archive_path = os.path.join(
+        target_directory, "{}-{}.zip".format(config["name"], target)
+    )
+    run_directory = os.path.join(target_directory, "open")
+
+    if os.path.isfile(archive_path):
+        extract_archive(archive_path, run_directory)
+    else:
+        print(f"Cannot open {target}: no archive or directory artifact was built.")
+        return
+
+    exe_path = os.path.abspath(
+        os.path.join(run_directory, "{}.exe".format(config["name"]))
+    )
+    if not os.path.isfile(exe_path):
+        print(f"Cannot open {target}: executable does not exist at '{exe_path}'.")
+        return
+
+    print(f"Opening {exe_path}")
+    if sys.platform.startswith("linux"):
+        command = ["wine", exe_path]
+    else:
+        command = [exe_path]
+    subprocess.run(command, cwd=run_directory)
+
+
+def open_lovejs_build(config, target_directory):
+    archive_path = os.path.join(
+        target_directory, "{}-lovejs.zip".format(config["name"])
+    )
+    serve_directory = os.path.join(target_directory, config["name"])
+
+    if not os.path.isfile(archive_path):
+        print(f"Cannot open lovejs: archive does not exist at '{archive_path}'.")
+        return
+
+    extract_archive(archive_path, serve_directory)
+
+    port = 8000
+    handler = functools.partial(
+        http.server.SimpleHTTPRequestHandler, directory=serve_directory
+    )
+    with socketserver.TCPServer(("", port), handler) as httpd:
+        url = f"http://127.0.0.1:{port}"
+        print(f"Serving lovejs build at {url}")
+        webbrowser.open(url)
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            httpd.shutdown()
+
+
+def open_build(config, target, target_directory):
+    if target in ("win32", "win64"):
+        open_windows_build(config, target, target_directory)
+    elif target == "lovejs":
+        open_lovejs_build(config, target_directory)
+    else:
+        print(f"--open is not supported for target {target}.")
+
+
 def main():
     parser = argparse.ArgumentParser(prog="makelove")
     parser.add_argument(
@@ -226,6 +300,11 @@ def main():
         "--verbose",
         action="store_true",
         help="Display more information (files included in love archive)",
+    )
+    parser.add_argument(
+        "--open",
+        action="store_true",
+        help="Open supported targets after building.",
     )
     # Restrict version name format somehow? A git refname?
     parser.add_argument(
@@ -364,6 +443,11 @@ def main():
     if version != None:
         with JsonFile(build_log_path, indent=4) as build_log:
             build_log[-1]["completed"] = True
+
+    if args.open:
+        open_targets = sorted(targets, key=lambda target: target == "lovejs")
+        for target in open_targets:
+            open_build(config, target, os.path.join(build_directory, target))
 
 
 if __name__ == "__main__":
