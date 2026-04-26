@@ -179,7 +179,7 @@ def build_windows(config, version, target, target_directory, love_file_path):
         assert "love_version" in config
         print(f"No love binaries specified for target {target}")
         love_binaries = get_default_love_binary_dir(config["love_version"], target)
-        if os.path.isdir(love_binaries):
+        if os.path.isfile(os.path.join(love_binaries, "love.exe")):
             print(f"Love binaries already present in '{love_binaries}'")
         else:
             download_love(config["love_version"], target)
