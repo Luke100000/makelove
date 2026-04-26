@@ -43,6 +43,16 @@ class String:
         return "String"
 
 
+class Int:
+    def validate(self, obj):
+        if isinstance(obj, bool) or not isinstance(obj, int):
+            raise ValueError
+        return obj
+
+    def description(self):
+        return "Integer"
+
+
 class Any:
     def validate(self, obj):
         return obj

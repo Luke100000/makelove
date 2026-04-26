@@ -34,7 +34,7 @@ love_version = "11.4"
 # The targets specified here are used if no targets are passed when makelove is invoked.
 # If you are on Linux, the default value is ["win32", "win64", "appimage"]
 # If you are on another OS, the default value is ["win32", "win64"]
-default_targets = ["win32", "win64", "appimage", "lovejs", "macos"] # <- possible values for now
+default_targets = ["win32", "win64", "appimage", "lovejs", "macos", "android"] # <- possible values for now
 
 # By default this is "makelove-build"
 build_directory = "bauwerke"
@@ -160,3 +160,49 @@ index_file = "web/index.html"
 theme_directory = "web/theme"
 love_js_file = "web/love.js"
 love_wasm_file = "web/love.wasm"
+
+[android]
+# Android builds use a prebuilt Docker image so makelove does not manage the
+# Android SDK, Gradle, or love-android checkout. By default this is:
+# "luke100000/love-android-builder:<love_version>".
+docker_image = "luke100000/love-android-builder:11.5"
+
+# Optional. Defaults to the top-level name.
+app_name = "Amazing Game"
+
+# Defaults to "org.love2d.<normalized name>". Set this for published apps.
+application_id = "org.example.amazinggame"
+
+# Optional. If omitted, makelove uses AndroidManifest.xml from the project root
+# when present, otherwise it keeps the manifest from the love-android image.
+manifest = "AndroidManifest.xml"
+
+# Optional. version_name defaults to the makelove build version or "1.0.0".
+# version_code defaults to "1"; increment it for every published Android update.
+version_code = 1
+version_name = "0.1.0"
+
+# Optional. Passed to love-android's app.orientation Gradle property.
+orientation = "landscape"
+
+# Optional. Build the variant with Android microphone permission.
+record_audio = false
+
+# Optional. Defaults to the top-level icon_file when present.
+icon_file = "icon.png"
+
+# The Android target can produce either or both artifacts. The default is both.
+artifacts = ["apk", "aab"]
+
+# Optional release signing. If omitted, makelove uses a generated debug
+# keystore for local builds. Published Android apps must keep using the same
+# release keystore for every update.
+#
+# Keep the release keystore and password. Android app updates must be signed
+# with the same key. keystore_alias, keystore_password, and key_password also
+# fall back to KEYSTORE_ALIAS, KEYSTORE_PW, and KEY_PW. key_password defaults
+# to keystore_password.
+keystore = "release.keystore"
+keystore_alias = "upload"
+keystore_password = "changeit"
+key_password = "changeit"

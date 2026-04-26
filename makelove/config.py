@@ -10,7 +10,7 @@ from .util import prompt
 
 default_config_name = "makelove.toml"
 
-all_targets = ["win32", "win64", "appimage", "macos", "lovejs"]
+all_targets = ["win32", "win64", "appimage", "macos", "lovejs", "android"]
 
 all_love_versions = [
     "12.0",
@@ -108,6 +108,24 @@ config_params = {
             "theme_directory": val.Path(),
             "love_js_file": val.Path(),
             "love_wasm_file": val.Path(),
+        }
+    ),
+    "android": val.Section(
+        {
+            "docker_image": val.String(),
+            "app_name": val.String(),
+            "application_id": val.String(),
+            "version_code": val.Option(val.String(), val.Int()),
+            "version_name": val.String(),
+            "orientation": val.String(),
+            "record_audio": val.Bool(),
+            "manifest": val.Path(),
+            "icon_file": val.Path(),
+            "keystore": val.Path(),
+            "keystore_alias": val.String(),
+            "keystore_password": val.String(),
+            "key_password": val.String(),
+            "artifacts": val.ValueOrList(val.Choice("apk", "aab")),
         }
     ),
 }

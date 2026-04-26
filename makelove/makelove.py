@@ -11,6 +11,7 @@ from email.utils import formatdate
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
 
+from .android import build_android
 from .config import all_targets, get_config, init_config_assistant
 from .filelist import FileList
 from .hooks import execute_hook
@@ -357,6 +358,8 @@ def main():
             build_macos(config, version, target, target_directory, love_file_path)
         elif target == "lovejs":
             build_lovejs(config, version, target, target_directory, love_file_path)
+        elif target == "android":
+            build_android(config, version, target, target_directory, love_file_path)
 
         print(f"Target {target} complete")
 

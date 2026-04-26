@@ -42,6 +42,7 @@ makelove = "makelove.makelove:main"
 
 [dependency-groups]
 dev = [
+    "ruff>=0.15.12",
     "build>=1.2.2.post1",
 ]
 

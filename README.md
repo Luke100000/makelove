@@ -7,6 +7,7 @@ A packaging tool for [löve](https://love2d.org) games
 * Build [AppImages](https://appimage.org/) using the AppImages from [love-appimages](https://github.com/pfirsich/love-appimages) (This is feature is only supported on Linux and WSL2. WSL does not support AppImages for a lack of FUSE support)
 * Mac Builds
 * [love.js](https://github.com/Davidobot/love.js) builds (which does not support Lua modules from shared libraries or LuaJIT-specific features, like FFI)
+* Android APK/AAB builds through a configurable Docker builder image
 * Proper handling of shared libraries (both Lua modules and FFI)!
 * Packaging of those binaries in archives, including extra files
 * Versioned builds
@@ -60,6 +61,17 @@ makelove --help
 ## Configuration
 
 All possible configuration values are shown and explained in [makelove_full.toml](makelove_full.toml) (**You should look at this!**) (not a valid makelove configuration).
+
+Docker is required when building the `android` target. Configure a release
+keystore for published builds, or makelove will use a generated debug keystore
+for local builds. A release keystore can be created with:
+
+```
+keytool -genkeypair -v -keystore release.keystore -alias upload -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Keep that keystore and password. Android updates must be signed with the same
+key.
 
 If you wish to do some extravagant things, have a look at [how_to_x.md](how_to_x.md), which may list what you are trying to do. If there is anything that you want to do, but can't please let me know and I will try to add whatever is needed, if the change is reasonable.
 
