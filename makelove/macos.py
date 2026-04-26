@@ -164,8 +164,8 @@ def build_macos(config, version, target, target_directory, love_file_path):
         assert "love_version" in config
         print("No love binaries specified for target {}".format(target))
         love_binaries = get_default_love_binary_dir(config["love_version"], target)
-        if os.path.isdir(love_binaries):
-            print("Love binaries already present in '{}'".format(love_binaries))
+        if os.path.isfile(os.path.join(love_binaries, "love.zip")):
+            print(f"Love binaries already present in '{love_binaries}'")
         else:
             download_love(config["love_version"], target)
 
