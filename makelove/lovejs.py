@@ -200,4 +200,4 @@ def build_lovejs(config, version, target, target_directory, love_file_path):
         )
 
         for path, data in output_files.items():
-            app_zip.writestr(f"{config['name']}/{path}", data)
+            app_zip.writestr(path, data)
