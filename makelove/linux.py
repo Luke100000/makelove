@@ -182,8 +182,9 @@ def build_linux(config, version, target, target_directory, love_file_path):
         parsed_version = parse_love_version(config["love_version"])
         if (parsed_version[0], parsed_version[1]) >= (11, 4):
             os.rename(fused_exe_path, appdir("bin/love"))
-
-        desktop_exec = f"{game_name} %f"
+            desktop_exec = f"love %f"
+        else:
+            desktop_exec = f"{game_name} %f"
     else:
         sys.exit(
             "Could not find love executable in AppDir. The AppImage has an unknown format."

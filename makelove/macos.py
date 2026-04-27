@@ -204,6 +204,9 @@ def build_macos(config, version, target, target_directory, love_file_path):
             written_archive_files.add(path)
 
         for zipinfo in love_binary_zip.infolist():
+            if zipinfo.filename.startswith("__MACOSX/"):
+                continue
+
             if not zipinfo.filename.startswith("love.app/"):
                 eprint("Got bad or unxpexpectedly formatted love zip file")
                 sys.exit(1)
@@ -251,4 +254,3 @@ def build_macos(config, version, target, target_directory, love_file_path):
         with ZipFile(dst, "r") as zip_ref:
             zip_ref.extractall(unzip_dst)
         os.remove(dst)
-    

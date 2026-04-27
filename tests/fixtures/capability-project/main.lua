@@ -1,18 +1,14 @@
-local major, minor, revision, codename = love.getVersion()
-local version = string.format(
-    "LÖVE %d.%d.%d %s",
-    major,
-    minor,
-    revision,
-    codename or ""
-)
-
-print("makelove capability project")
-print(version)
+if os.getenv("MAKELOVE_CAPABILITY_SMOKE") == "1" then
+    local file = io.open("version.txt", "w")
+    if file ~= nil then
+        file:write("__MAKELOVE_EXPECTED_VERSION__")
+        file:close()
+    end
+    os.exit(0)
+end
 
 function love.draw()
-    love.graphics.clear(0.08, 0.09, 0.11)
-    love.graphics.setColor(0.9, 0.95, 1.0)
-    love.graphics.print("makelove capability project", 24, 64)
-    love.graphics.print(version, 24, 88)
+    local major, minor, revision, codename = love.getVersion()
+    love.graphics.print("Capability Project", 10, 32)
+    love.graphics.print(string.format("Love version: %d.%d.%d - %s", major, minor, revision, codename), 10, 48)
 end
