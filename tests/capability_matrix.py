@@ -28,7 +28,7 @@ DEFAULT_CACHE_HOME = REPO_ROOT / ".makelove-ci-cache"
 LEGACY_MACOS_SMOKE_VERSIONS = {"0.9.1", "0.9.0"}
 
 # App images fail because mpg123_info2 is not part of bundled libmpg123.so.0
-AFFECTED_BY_MPG123_INFO2 = ["11.3", "0.10.2", "0.9.2"]
+AFFECTED_BY_MPG123_INFO2 = {"11.3", "0.10.2", "0.9.2"}
 
 
 class Result(Enum):
