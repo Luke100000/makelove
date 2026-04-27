@@ -12,6 +12,7 @@ import appdirs
 
 from .util import fuse_files, tmpfile, parse_love_version, ask_yes_no
 from .config import all_love_versions, should_build_artifact
+from .hooks import execute_target_hook
 
 
 def get_appimagetool_path():
@@ -143,6 +144,8 @@ def build_linux(config, version, target, target_directory, love_file_path):
 
     appdir_path = os.path.join(target_directory, "squashfs-root")
     appdir = lambda x: os.path.join(appdir_path, x)
+    appdirbin_path = os.path.join(appdir_path, "bin")
+    appdirbin = lambda x: os.path.join(appdirbin_path, x)
 
     game_name = config["name"]
     if " " in game_name:
@@ -174,6 +177,12 @@ def build_linux(config, version, target, target_directory, love_file_path):
         fuse_files(fused_exe_path, appdir("bin/love"), love_file_path)
         os.chmod(fused_exe_path, 0o755)
         os.remove(appdir("bin/love"))
+
+        # rename back to bin/love so love.sh can pick it up
+        parsed_version = parse_love_version(config["love_version"])
+        if (parsed_version[0], parsed_version[1]) >= (11, 4):
+            os.rename(fused_exe_path, appdir("bin/love"))
+
         desktop_exec = f"{game_name} %f"
     else:
         sys.exit(
@@ -226,6 +235,24 @@ def build_linux(config, version, target, target_directory, love_file_path):
         for k, v in desktop_file_fields.items():
             f.write("{}={}\n".format(k, v))
 
+    # archive files
+    archive_files = {}
+    if "archive_files" in config:
+        archive_files.update(config["archive_files"])
+    if target in config and "archive_files" in config[target]:
+        archive_files.update(config[target]["archive_files"])
+
+    for k, v in archive_files.items():
+        path = appdirbin(v)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        if os.path.isfile(k):
+            shutil.copyfile(k, path)
+        elif os.path.isdir(k):
+            shutil.copytree(k, path)
+        else:
+            sys.exit("Cannot copy archive file '{}'".format(k))
+
+
     # Shared libraries
     if target in config and "shared_libraries" in config[target]:
         if os.path.isfile(appdir("usr/lib/liblove.so")):
@@ -233,6 +260,9 @@ def build_linux(config, version, target, target_directory, love_file_path):
             so_target_dir = appdir("usr/lib")
         elif os.path.isfile(appdir("lib/liblove.so")):
             # Official AppImages (since 11.4)
+            so_target_dir = appdir("lib/")
+        elif os.path.isfile(appdir("lib/liblove-{}.so".format(config["love_version"]))):
+            # Support for >= 11.5
             so_target_dir = appdir("lib/")
         else:
             sys.exit(

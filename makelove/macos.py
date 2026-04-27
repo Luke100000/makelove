@@ -11,6 +11,7 @@ from urllib.request import urlopen, urlretrieve, URLError
 from PIL import Image
 
 from .util import eprint, get_default_love_binary_dir, get_download_url
+from .hooks import execute_target_hook
 
 
 def download_love(version, platform):
@@ -243,3 +244,11 @@ def build_macos(config, version, target, target_directory, love_file_path):
 
         loveZipKey = f"{config['name']}.app/Contents/Resources/{config['name']}.love"
         app_zip.writestr(loveZipKey, love_zip.read())
+
+    # default behavior is to create an archive
+    if target in config and "artifacts" in config[target] and "directory" in config[target]["artifacts"]:
+        unzip_dst = os.path.join(target_directory, f"{config['name']}-{target}")
+        with ZipFile(dst, "r") as zip_ref:
+            zip_ref.extractall(unzip_dst)
+        os.remove(dst)
+    
