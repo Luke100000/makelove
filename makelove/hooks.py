@@ -37,3 +37,14 @@ def execute_hook(command, config, version, targets, build_directory):
     new_config = get_config(tmp_config_path)
     os.remove(tmp_config_path)
     return new_config
+
+def execute_target_hook(command, target):
+    env = os.environ.copy()
+    env.update({
+        "MAKELOVE_TARGET": target,
+    })
+
+    try:
+        subprocess.run(command, shell=True, check=True, env=env)
+    except Exception as e:
+        sys.exit("Build target hook '{}' failed: {}".format(command, e))

@@ -77,6 +77,7 @@ config_params = {
             "love_binaries": val.Path(),
             "shared_libraries": val.List(val.Path()),
             "artifacts": val.ValueOrList(val.Choice("directory", "archive")),
+            "archive_files": val.Dict(val.Path(), val.Path()),
         }
     ),
     "linux": val.Section(
@@ -87,6 +88,7 @@ config_params = {
             "source_appimage": val.Path(),
             "shared_libraries": val.List(val.Path()),
             "artifacts": val.ValueOrList(val.Choice("appdir", "appimage")),
+            "archive_files": val.Dict(val.Path(), val.Path()),
         }
     ),
     "macos": val.Section(
@@ -94,6 +96,7 @@ config_params = {
             "love_binaries": val.Path(),
             "icon_file": val.Path(),
             "app_metadata": val.Dict(val.String(), val.String()),
+            "artifacts": val.ValueOrList(val.Choice("directory", "archive")),
             "archive_files": val.Dict(val.Path(), val.Path()),
         }
     ),
