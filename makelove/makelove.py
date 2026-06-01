@@ -6,9 +6,9 @@ import sys
 import json
 import subprocess
 from email.utils import formatdate
+from importlib.metadata import PackageNotFoundError, version as package_version
 import zipfile
 import re
-import pkg_resources
 
 from .config import get_config, all_targets, init_config_assistant
 from .hooks import execute_hook
@@ -255,7 +255,11 @@ def main():
     args = parser.parse_args()
 
     if args.display_version:
-        print("makelove {}".format(pkg_resources.get_distribution("makelove").version))
+        try:
+            version = package_version("makelove")
+        except PackageNotFoundError:
+            version = "unknown"
+        print("makelove {}".format(version))
         sys.exit(0)
 
     if not os.path.isfile("main.lua"):
