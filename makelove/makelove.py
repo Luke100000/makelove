@@ -16,6 +16,7 @@ from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
 
 from .android import build_android
+from .butler import publish
 from .config import all_targets, get_config, init_config_assistant
 from .filelist import FileList
 from .hooks import execute_hook
@@ -96,6 +97,20 @@ def execute_hooks(hook, config, version, targets, build_directory):
             )
             config.clear()
             config.update(new_config)
+
+
+def execute_butler(config, version, targets, build_directory):
+    # Flush so makelove build output is shown before butler errors or output.
+    sys.stdout.flush()
+    if "butler" not in config:
+        return
+    butler_cfg = config["butler"]
+    if "itchapp" not in butler_cfg:
+        # Skipping butler publish because itchapp parameter is missing:
+        # itchapp = "username/gamename"
+        return
+    itchapp = butler_cfg["itchapp"]
+    publish(itchapp, butler_cfg, version, targets, build_directory)
 
 
 def git_ls_tree(path=".", visited=None):
@@ -444,6 +459,8 @@ def main():
 
     if "postbuild" not in args.disabled_hooks:
         execute_hooks("postbuild", config, version, targets, build_directory)
+
+    execute_butler(config, version, targets, build_directory)
 
     if version is not None:
         with JsonFile(build_log_path, indent=4) as build_log:
