@@ -100,17 +100,9 @@ def execute_hooks(hook, config, version, targets, build_directory):
 
 
 def execute_butler(config, version, targets, build_directory):
-    # Flush so makelove build output is shown before butler errors or output.
-    sys.stdout.flush()
-    if "butler" not in config:
-        return
-    butler_cfg = config["butler"]
-    if "itchapp" not in butler_cfg:
-        # Skipping butler publish because itchapp parameter is missing:
-        # itchapp = "username/gamename"
-        return
-    itchapp = butler_cfg["itchapp"]
-    publish(itchapp, butler_cfg, version, targets, build_directory)
+    if "butler" not in config or "itchapp" not in config["butler"]:
+        sys.exit("--publish requires [butler] itchapp = \"username/gamename\"")
+    publish(config["butler"]["itchapp"], config["butler"], version, targets, build_directory)
 
 
 def git_ls_tree(path=".", visited=None):
@@ -324,6 +316,11 @@ def main():
         action="store_true",
         help="Open supported targets after building.",
     )
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="Publish built artifacts to itch.io using the [butler] configuration.",
+    )
     # Restrict version name format somehow? A git refname?
     parser.add_argument(
         "-n",
@@ -460,7 +457,8 @@ def main():
     if "postbuild" not in args.disabled_hooks:
         execute_hooks("postbuild", config, version, targets, build_directory)
 
-    execute_butler(config, version, targets, build_directory)
+    if args.publish:
+        execute_butler(config, version, targets, build_directory)
 
     if version is not None:
         with JsonFile(build_log_path, indent=4) as build_log:

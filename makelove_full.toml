@@ -77,7 +77,7 @@ postbuild = [
 # anything. It is intended as a place for configuration for your hooks.
 
 [butler]
-# Automatically push built targets to itch.io after builds.
+# Publish built targets to itch.io when makelove is invoked with --publish.
 # Requires butler installed and in your PATH. See https://itch.io/docs/butler/
 #
 # For lovejs builds, "Kind of project" must be set to "HTML" on itch.io. After
