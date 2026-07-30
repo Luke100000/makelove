@@ -25,6 +25,11 @@ from .lovejs import build_lovejs
 
 all_hooks = ["prebuild", "postbuild"]
 
+
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
+
 # Sadly argparse cannot handle nargs="*" and choices and will error if not at least one argument is provided
 def _choices(values):
     def f(s):
@@ -268,14 +273,14 @@ def open_lovejs_build(config, target_directory, host, port):
     handler = functools.partial(
         http.server.SimpleHTTPRequestHandler, directory=serve_directory
     )
-    with socketserver.TCPServer((host, port), handler) as httpd:
+    with ReusableTCPServer((host, port), handler) as httpd:
         url = f"http://{host}:{port}"
         print(f"Serving lovejs build at {url}")
         webbrowser.open(url)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            httpd.shutdown()
+            pass
 
 
 def open_build(config, target, target_directory, open_address):
