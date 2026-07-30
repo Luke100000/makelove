@@ -65,13 +65,19 @@ makelove --help
 
 ## Opening builds
 
-Pass `--open` after the target list to open a Windows build or serve a love.js build after it completes. A bare `--open` serves love.js only on `127.0.0.1:8000`:
+`--open` opens (Windows, Appimage) or serves (lovejs) builds:
 
 ```
-makelove lovejs --open
+makelove lovejs --open [IP[:PORT]]
 ```
 
-Use `--open=IP` to choose an interface (still port 8000), or `--open=IP:PORT` to choose both. For example, `--open=0.0.0.0:8080` makes a love.js build available on all IPv4 interfaces.
+By default `127.0.0.1:.8000` is used.
+
+Windows builds use `wine` on Linux. Override the launcher with `MAKELOVE_WINDOWS_OPEN_COMMAND`:
+
+```sh
+MAKELOVE_WINDOWS_OPEN_COMMAND='proton run' makelove win64 --open
+```
 
 ## Configuration
 

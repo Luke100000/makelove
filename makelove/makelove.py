@@ -5,6 +5,7 @@ import http.server
 import json
 import os
 import re
+import shlex
 import shutil
 import socketserver
 import subprocess
@@ -251,10 +252,17 @@ def open_windows_build(config, target, target_directory):
         return
 
     print(f"Opening {exe_path}")
-    if sys.platform.startswith("linux"):
-        command = ["wine", exe_path]
-    else:
-        command = [exe_path]
+    command = shlex.split(
+        os.environ.get(
+            "MAKELOVE_WINDOWS_OPEN_COMMAND",
+            "wine" if sys.platform.startswith("linux") else "",
+        )
+    )
+    if not command and not sys.platform.startswith("win"):
+        sys.exit(
+            "Set MAKELOVE_WINDOWS_OPEN_COMMAND to open Windows builds on this platform."
+        )
+    command.append(exe_path)
     subprocess.run(command, cwd=run_directory)
 
 
