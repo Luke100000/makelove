@@ -258,6 +258,18 @@ def open_windows_build(config, target, target_directory):
     subprocess.run(command, cwd=run_directory)
 
 
+def open_appimage_build(config, target_directory):
+    game_name = config["name"].replace(" ", "")
+    appimage_path = os.path.abspath(
+        os.path.join(target_directory, f"{game_name}.AppImage")
+    )
+    if not os.path.isfile(appimage_path):
+        print(f"Cannot open appimage: executable does not exist at '{appimage_path}'.")
+        return
+    print(f"Opening {appimage_path}")
+    subprocess.run([appimage_path], cwd=target_directory)
+
+
 def open_lovejs_build(config, target_directory, host, port):
     archive_path = os.path.join(
         target_directory, "{}-lovejs.zip".format(config["name"])
@@ -286,6 +298,8 @@ def open_lovejs_build(config, target_directory, host, port):
 def open_build(config, target, target_directory, open_address):
     if target in ("win32", "win64"):
         open_windows_build(config, target, target_directory)
+    elif target == "appimage":
+        open_appimage_build(config, target_directory)
     elif target == "lovejs":
         open_lovejs_build(config, target_directory, *open_address)
     else:
