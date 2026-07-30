@@ -44,7 +44,7 @@ def download_official_appimage(version):
 
 
 def download_legacy_appimage(version):
-    latest_url = "https://api.github.com/repos/pfirsich/love-appimages/releases/tags/v3"
+    latest_url = "https://api.github.com/repos/pfirsich/love-appimages/releases/latest"
     asset_data = get_release_asset_list(latest_url)
 
     Asset = namedtuple("Asset", ["name", "version", "download_url"])
