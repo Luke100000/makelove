@@ -5,6 +5,7 @@ import http.server
 import json
 import os
 import re
+import shlex
 import shutil
 import socketserver
 import subprocess
@@ -27,6 +28,10 @@ from .macos import build_macos
 from .windows import build_windows
 
 all_hooks = ["prebuild", "postbuild"]
+
+
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
 
 
 # Sadly argparse cannot handle nargs="*" and choices and will error if not at least one argument is provided
@@ -211,7 +216,29 @@ def extract_archive(archive_path, output_directory):
         shutil.rmtree(output_directory)
     os.makedirs(output_directory)
     with zipfile.ZipFile(archive_path) as archive:
+        output_directory = os.path.realpath(output_directory)
+        if any(
+            os.path.commonpath(
+                (output_directory, os.path.realpath(os.path.join(output_directory, file.filename)))
+            )
+            != output_directory
+            for file in archive.infolist()
+        ):
+            sys.exit(f"Cannot open '{archive_path}': archive contains unsafe paths.")
         archive.extractall(output_directory)
+
+
+def parse_open_address(value):
+    host, separator, port = value.partition(":")
+    if not separator:
+        return host, 8000
+    try:
+        port = int(port)
+        if not host or not 0 < port < 65536:
+            raise ValueError
+    except ValueError:
+        raise argparse.ArgumentTypeError("expected IP or IP:PORT")
+    return host, port
 
 
 def open_windows_build(config, target, target_directory):
@@ -234,14 +261,33 @@ def open_windows_build(config, target, target_directory):
         return
 
     print(f"Opening {exe_path}")
-    if sys.platform.startswith("linux"):
-        command = ["wine", exe_path]
-    else:
-        command = [exe_path]
+    command = shlex.split(
+        os.environ.get(
+            "MAKELOVE_WINDOWS_OPEN_COMMAND",
+            "wine" if sys.platform.startswith("linux") else "",
+        )
+    )
+    if not command and not sys.platform.startswith("win"):
+        sys.exit(
+            "Set MAKELOVE_WINDOWS_OPEN_COMMAND to open Windows builds on this platform."
+        )
+    command.append(exe_path)
     subprocess.run(command, cwd=run_directory)
 
 
-def open_lovejs_build(config, target_directory):
+def open_appimage_build(config, target_directory):
+    game_name = config["name"].replace(" ", "")
+    appimage_path = os.path.abspath(
+        os.path.join(target_directory, f"{game_name}.AppImage")
+    )
+    if not os.path.isfile(appimage_path):
+        print(f"Cannot open appimage: executable does not exist at '{appimage_path}'.")
+        return
+    print(f"Opening {appimage_path}")
+    subprocess.run([appimage_path], cwd=target_directory)
+
+
+def open_lovejs_build(config, target_directory, host, port):
     archive_path = os.path.join(
         target_directory, "{}-lovejs.zip".format(config["name"])
     )
@@ -253,25 +299,26 @@ def open_lovejs_build(config, target_directory):
 
     extract_archive(archive_path, serve_directory)
 
-    port = 8000
     handler = functools.partial(
         http.server.SimpleHTTPRequestHandler, directory=serve_directory
     )
-    with socketserver.TCPServer(("", port), handler) as httpd:
-        url = f"http://127.0.0.1:{port}"
+    with ReusableTCPServer((host, port), handler) as httpd:
+        url = f"http://{host}:{port}"
         print(f"Serving lovejs build at {url}")
         webbrowser.open(url)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
-            httpd.shutdown()
+            pass
 
 
-def open_build(config, target, target_directory):
+def open_build(config, target, target_directory, open_address):
     if target in ("win32", "win64"):
         open_windows_build(config, target, target_directory)
+    elif target == "appimage":
+        open_appimage_build(config, target_directory)
     elif target == "lovejs":
-        open_lovejs_build(config, target_directory)
+        open_lovejs_build(config, target_directory, *open_address)
     else:
         print(f"--open is not supported for target {target}.")
 
@@ -313,13 +360,11 @@ def main():
     )
     parser.add_argument(
         "--open",
-        action="store_true",
-        help="Open supported targets after building.",
-    )
-    parser.add_argument(
-        "--publish",
-        action="store_true",
-        help="Publish built artifacts to itch.io using the [butler] configuration.",
+        nargs="?",
+        const="127.0.0.1",
+        type=parse_open_address,
+        metavar="IP[:PORT]",
+        help="Open supported targets after building; serve lovejs on IP[:PORT].",
     )
     # Restrict version name format somehow? A git refname?
     parser.add_argument(
@@ -467,7 +512,9 @@ def main():
     if args.open:
         open_targets = sorted(targets, key=lambda target: target == "lovejs")
         for target in open_targets:
-            open_build(config, target, os.path.join(build_directory, target))
+            open_build(
+                config, target, os.path.join(build_directory, target), args.open
+            )
 
 
 if __name__ == "__main__":
