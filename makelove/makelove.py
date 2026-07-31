@@ -366,6 +366,11 @@ def main():
         metavar="IP[:PORT]",
         help="Open supported targets after building; serve lovejs on IP[:PORT].",
     )
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="Publish built artifacts to itch.io using the [butler] configuration.",
+    )
     # Restrict version name format somehow? A git refname?
     parser.add_argument(
         "-n",
