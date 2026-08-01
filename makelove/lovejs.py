@@ -109,6 +109,22 @@ def copy_file(output_files, dst, src):
     output_files[dst] = read_file(src)
 
 
+def expose_lovejs_fs(source_code):
+    """Expose Emscripten's filesystem on the LÖVE module."""
+    needle = b"\n\n  return Love.ready\n}"
+    replacement = b'\n\n  Module["FS"] = FS;\n  return Love.ready\n}'
+    matches = source_code.count(needle)
+    if matches != 1:
+        sys.exit("Cannot patch love.js: filesystem export point not found")
+    return source_code.replace(needle, replacement)
+
+
+def copy_davidobot_lovejs_file(output_files, dst, src):
+    if not os.path.isfile(src):
+        sys.exit(f"Cannot copy love.js file '{src}'")
+    output_files[dst] = expose_lovejs_fs(read_file(src))
+
+
 def copy_zip_directory(output_files, dst, zip_file, src):
     prefix = get_zip_prefix(zip_file) + src.rstrip("/") + "/"
     for zipinfo in zip_file.infolist():
@@ -139,6 +155,7 @@ def has_default_zip(path):
 
 
 def build_lovejs(config, version, target, target_directory, love_file_path):
+    lovejs_version, _lovejs_config = resolve_lovejs_version(config["love_version"])
     if target in config and "love_binaries" in config[target]:
         love_binaries = config[target]["love_binaries"]
     else:
@@ -187,11 +204,13 @@ def build_lovejs(config, version, target, target_directory, love_file_path):
         else:
             copy_zip_directory(output_files, "theme", love_binary_zip, DEFAULT_THEME)
 
-        copy_file(
-            output_files,
-            "love.js",
-            lovejs_section.get("love_js_file", Path(love_binaries) / "love.js"),
+        love_js_file = lovejs_section.get(
+            "love_js_file", Path(love_binaries) / "love.js"
         )
+        if lovejs_version == "11.5":
+            copy_davidobot_lovejs_file(output_files, "love.js", love_js_file)
+        else:
+            copy_file(output_files, "love.js", love_js_file)
 
         copy_file(
             output_files,
