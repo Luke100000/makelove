@@ -208,7 +208,7 @@ def build_linux(config, version, target, target_directory, love_file_path):
                 sys.exit(f"Could not find icon file: {exc}")
             except UnidentifiedImageError as exc:
                 sys.exit(f"Could not read icon file: {exc}")
-            except IOError as exc:
+            except OSError as exc:
                 sys.exit(f"Could not convert icon to .png: {exc}")
     # appimagetool will create a symlink from the icon to .DirIcon
     os.remove(appdir(".DirIcon"))

@@ -163,7 +163,7 @@ def set_exe_metadata(exe_path, metadata, icon_file):
                 sys.exit(f"Could not find icon file: {exc}")
             except UnidentifiedImageError as exc:
                 sys.exit(f"Could not read icon file: {exc}")
-            except IOError as exc:
+            except OSError as exc:
                 sys.exit(f"Could not convert icon to .ico: {exc}")
 
     res = subprocess.run(args, capture_output=True)
