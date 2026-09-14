@@ -13,16 +13,6 @@ from .config import should_build_artifact
 from .util import eprint, get_default_love_binary_dir, get_download_url, tmpfile
 
 
-def common_prefix(l):
-    # This is all functional and cool, but entirely unreadable.
-    # Just trust that it does what the function name suggests it does.
-    return max(
-        l[0][:i]
-        for i in range(len(min(l, key=len)))
-        if all(name.startswith(l[0][:i]) for name in l)
-    )
-
-
 def download_love(version, platform):
     target_path = get_default_love_binary_dir(version, platform)
     print(f"Downloading love binaries to: '{target_path}'")
