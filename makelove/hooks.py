@@ -15,12 +15,14 @@ def execute_hook(command, config, version, targets, build_directory):
         toml.dump(config, f)
 
     env = os.environ.copy()
-    env.update({
-        "MAKELOVE_TEMP_CONFIG": tmp_config_path,
-        "MAKELOVE_VERSION": version or "",
-        "MAKELOVE_TARGETS": ",".join(targets),
-        "MAKELOVE_BUILD_DIRECTORY": build_directory,
-    })
+    env.update(
+        {
+            "MAKELOVE_TEMP_CONFIG": tmp_config_path,
+            "MAKELOVE_VERSION": version or "",
+            "MAKELOVE_TARGETS": ",".join(targets),
+            "MAKELOVE_BUILD_DIRECTORY": build_directory,
+        }
+    )
 
     command_replaced = command.format(
         version=version or "", build_directory=build_directory
@@ -35,11 +37,14 @@ def execute_hook(command, config, version, targets, build_directory):
     os.remove(tmp_config_path)
     return new_config
 
+
 def execute_target_hook(command, target):
     env = os.environ.copy()
-    env.update({
-        "MAKELOVE_TARGET": target,
-    })
+    env.update(
+        {
+            "MAKELOVE_TARGET": target,
+        }
+    )
 
     try:
         subprocess.run(command, shell=True, check=True, env=env)

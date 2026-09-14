@@ -251,7 +251,6 @@ def build_linux(config, version, target, target_directory, love_file_path):
         else:
             sys.exit(f"Cannot copy archive file '{k}'")
 
-
     # Shared libraries
     if target in config and "shared_libraries" in config[target]:
         if os.path.isfile(appdir("usr/lib/liblove.so")):

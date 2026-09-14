@@ -198,7 +198,9 @@ def build_windows(config, version, target, target_directory, love_file_path):
             metadata["OriginalFilename"] = os.path.basename(target_exe_path)
 
         set_exe_metadata(
-            src("love.exe"), metadata, config.get("icon_file", None),
+            src("love.exe"),
+            metadata,
+            config.get("icon_file", None),
         )
     else:
         print(

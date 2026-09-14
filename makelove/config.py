@@ -173,9 +173,7 @@ def guess_love_version():
     if len(matches) == 0:
         return None
     elif len(matches) > 1:
-        print(
-            f"Could not determine löve version unambiguously. Candidates: {matches}"
-        )
+        print(f"Could not determine löve version unambiguously. Candidates: {matches}")
         return None
     return matches[0]
 
@@ -225,9 +223,7 @@ def get_config(config_path):
         conf_love_version = guess_love_version()
         if conf_love_version:
             config["love_version"] = conf_love_version
-            print(
-                f"Guessed löve version from löve config file: {conf_love_version}"
-            )
+            print(f"Guessed löve version from löve config file: {conf_love_version}")
         else:
             config["love_version"] = "11.3"  # update this manually here
             print("Assuming default löve version '{}'".format(config["love_version"]))

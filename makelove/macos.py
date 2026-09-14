@@ -174,13 +174,12 @@ def build_macos(config, version, target, target_directory, love_file_path):
     ) as outf, ZipFile(outf, mode="w") as app_zip, open(
         love_file_path, "rb"
     ) as love_zip:
-
         archive_files = {}
         if "archive_files" in config:
             archive_files.update(config["archive_files"])
         if "macos" in config and "archive_files" in config["macos"]:
             archive_files.update(config["macos"]["archive_files"])
-        
+
         written_archive_files = set()
         for src_path, dest_path in archive_files.items():
             path = f"{config['name']}.app/Contents/Resources/{dest_path}"
@@ -244,9 +243,12 @@ def build_macos(config, version, target, target_directory, love_file_path):
         app_zip.writestr(loveZipKey, love_zip.read())
 
     # default behavior is to create an archive
-    if target in config and "artifacts" in config[target] and "directory" in config[target]["artifacts"]:
+    if (
+        target in config
+        and "artifacts" in config[target]
+        and "directory" in config[target]["artifacts"]
+    ):
         unzip_dst = os.path.join(target_directory, f"{config['name']}-{target}")
         with ZipFile(dst, "r") as zip_ref:
             zip_ref.extractall(unzip_dst)
         os.remove(dst)
-    

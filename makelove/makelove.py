@@ -22,6 +22,7 @@ from .windows import build_windows
 
 all_hooks = ["prebuild", "postbuild"]
 
+
 # Sadly argparse cannot handle nargs="*" and choices and will error if not at least one argument is provided
 def _choices(values):
     def f(s):
