@@ -56,7 +56,7 @@ class Choice:
         self.choices = choices
 
     def validate(self, obj):
-        if not obj in self.choices:
+        if obj not in self.choices:
             raise ValueError
         return obj
 

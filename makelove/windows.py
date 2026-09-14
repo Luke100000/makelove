@@ -72,7 +72,7 @@ def prepare_rcedit():
 def can_set_metadata(platform):
     if platform.startswith("win"):
         return True
-    elif shutil.which("wine") != None:
+    elif shutil.which("wine") is not None:
         return True
     return False
 
@@ -85,33 +85,33 @@ def get_exe_metadata(config, version):
         metadata = config["windows"]["exe_metadata"]
 
     # Default value in löve: "LÖVE <version>"
-    if not "FileDescription" in metadata:
-        if version != None:
+    if "FileDescription" not in metadata:
+        if version is not None:
             metadata["FileDescription"] = "{} {}".format(config["name"], version)
         else:
             metadata["FileDescription"] = config["name"]
 
     # Default value is löve version
-    if not "FileVersion" in metadata:
-        if version != None:
+    if "FileVersion" not in metadata:
+        if version is not None:
             metadata["FileVersion"] = version
         else:
             metadata["FileVersion"] = ""
 
     # Default value is "LÖVE World Domination Inc."
-    if not "CompanyName" in metadata:
+    if "CompanyName" not in metadata:
         metadata["CompanyName"] = ""
 
     # Default value is "Copyright © 2006-2020 LÖVE Development Team"
-    if not "LegalCopyright" in metadata:
+    if "LegalCopyright" not in metadata:
         metadata["LegalCopyright"] = ""
 
     # Default value in löve: "LÖVE"
-    if not "ProductName" in metadata:
+    if "ProductName" not in metadata:
         metadata["ProductName"] = config["name"]
 
     # Default value is same as FileVersion's
-    if not "ProductVersion" in metadata:
+    if "ProductVersion" not in metadata:
         metadata["ProductVersion"] = metadata["FileVersion"]
 
     # löve also sets "InternalName" to ""
@@ -148,7 +148,7 @@ def set_exe_metadata(exe_path, metadata, icon_file):
         args.extend(["--set-version-string", k, v])
 
     temp_ico_path = None
-    if icon_file != None:
+    if icon_file is not None:
         if not os.path.isfile(icon_file):
             sys.exit(f"Icon file does not exist '{icon_file}'")
         if icon_file.lower().endswith(".ico"):
@@ -205,7 +205,7 @@ def build_windows(config, version, target, target_directory, love_file_path):
 
         # Default value is "löve.exe" of course.
         # This value is used to determine if an executable has been renamed
-        if not "OriginalFilename" in metadata:
+        if "OriginalFilename" not in metadata:
             metadata["OriginalFilename"] = os.path.basename(target_exe_path)
 
         set_exe_metadata(

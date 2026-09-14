@@ -110,7 +110,7 @@ config_params = {
 
 
 def should_build_artifact(config, target, artifact, default):
-    if not target in config or not "artifacts" in config[target]:
+    if target not in config or "artifacts" not in config[target]:
         return default
     if artifact in config[target]["artifacts"]:
         return True
@@ -163,7 +163,7 @@ def get_conf_filename():
 
 def guess_love_version():
     filename = get_conf_filename()
-    if filename == None:
+    if filename is None:
         return None
 
     with open(filename) as f:
@@ -203,7 +203,7 @@ def validate_config(config):
 
 
 def get_raw_config(config_path):
-    if config_path != None:
+    if config_path is not None:
         if not os.path.isfile(config_path):
             sys.exit(f"Config file '{config_path}' does not exist")
         print(f"Loading config file '{config_path}'")
@@ -219,10 +219,10 @@ def get_raw_config(config_path):
 
 def get_config(config_path):
     config = get_raw_config(config_path)
-    if not "name" in config:
+    if "name" not in config:
         config["name"] = guess_name()
         print("Guessing project name as '{}'".format(config["name"]))
-    if not "love_version" in config:
+    if "love_version" not in config:
         conf_love_version = guess_love_version()
         if conf_love_version:
             config["love_version"] = conf_love_version
@@ -232,12 +232,12 @@ def get_config(config_path):
         else:
             config["love_version"] = "11.3"  # update this manually here
             print("Assuming default löve version '{}'".format(config["love_version"]))
-    if not "default_targets" in config:
+    if "default_targets" not in config:
         config["default_targets"] = get_default_targets()
-    if not "build_directory" in config:
+    if "build_directory" not in config:
         config["build_directory"] = "makelove-build"
         print("Using default build directory '{}'".format(config["build_directory"]))
-    if not "love_files" in config:
+    if "love_files" not in config:
         config["love_files"] = get_default_love_files(config["build_directory"])
         print("Using default love_files patterns: {}".format(config["love_files"]))
     validate_config(config)

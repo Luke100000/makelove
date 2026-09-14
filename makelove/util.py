@@ -42,7 +42,7 @@ def parse_love_version(version_str):
 
 
 def ask_yes_no(question, default=None):
-    if default == None:
+    if default is None:
         option_str = "[y/n]: "
     else:
         option_str = " [{}/{}]: ".format(
@@ -52,7 +52,7 @@ def ask_yes_no(question, default=None):
     while True:
         sys.stdout.write(question + option_str)
         choice = input().lower()
-        if choice == "" and default != None:
+        if choice == "" and default is not None:
             return default
         else:
             try:
@@ -63,7 +63,7 @@ def ask_yes_no(question, default=None):
 
 def prompt(prompt_str, default=None):
     default_str = ""
-    if default != None:
+    if default is not None:
         default_str = f" [{default}]"
     while True:
         sys.stdout.write(prompt_str + default_str + ": ")
@@ -71,7 +71,7 @@ def prompt(prompt_str, default=None):
         if s:
             return s
         else:
-            if default != None:
+            if default is not None:
                 return default
 
 

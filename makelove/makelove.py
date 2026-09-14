@@ -57,7 +57,7 @@ def get_build_log_path(build_directory):
 def prepare_build_directory(args, config, version):
     assert "build_directory" in config
     build_directory = config["build_directory"]
-    versioned_build = version != None
+    versioned_build = version is not None
 
     if versioned_build:
         # Pretend the build directory is the version directory
@@ -94,7 +94,7 @@ def execute_hooks(hook, config, version, targets, build_directory):
 def git_ls_tree(path=".", visited=None):
     p = os.path
 
-    if visited == None:
+    if visited is None:
         visited = set()
     rpath = p.realpath(path)
     if rpath in visited:
@@ -163,7 +163,7 @@ def get_build_version(args, config):
 
     # Bump version if we are doing a versioned build and no version is specified
     were_versioned_builds_made = os.path.isfile(build_log_path)
-    if were_versioned_builds_made and args.version == None:
+    if were_versioned_builds_made and args.version is None:
         print(
             "Versioned builds were made in the past, but no version was specified for this build. Bumping last built version."
         )
@@ -275,7 +275,7 @@ def main():
 
     version = get_build_version(args, config)
 
-    if version != None:
+    if version is not None:
         print(f"Building version '{version}'")
 
     if "all" in args.disabled_hooks:
@@ -295,7 +295,7 @@ def main():
     build_log_path = get_build_log_path(config["build_directory"])
     print("Building targets:", ", ".join(targets))
 
-    if version != None:
+    if version is not None:
         with JsonFile(build_log_path, indent=4) as build_log:
             build_log.append(
                 {
@@ -306,7 +306,7 @@ def main():
                 }
             )
 
-    if not "prebuild" in args.disabled_hooks:
+    if "prebuild" not in args.disabled_hooks:
         execute_hooks("prebuild", config, version, targets, build_directory)
 
     love_directory = os.path.join(build_directory, "love")
@@ -317,7 +317,7 @@ def main():
     # If we do a versioned build and reached this place, force/--force
     # was passed, so we can just delete stuff.
 
-    rebuild_love = version != None or not args.resume
+    rebuild_love = version is not None or not args.resume
     if not os.path.isfile(love_file_path) or rebuild_love:
         print("Assembling game directory..")
         assemble_game_directory(args, config, game_directory)
@@ -358,10 +358,10 @@ def main():
 
         print(f"Target {target} complete")
 
-    if not "postbuild" in args.disabled_hooks:
+    if "postbuild" not in args.disabled_hooks:
         execute_hooks("postbuild", config, version, targets, build_directory)
 
-    if version != None:
+    if version is not None:
         with JsonFile(build_log_path, indent=4) as build_log:
             build_log[-1]["completed"] = True
 
