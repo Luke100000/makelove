@@ -44,5 +44,4 @@ class FileList:
         self.file_list -= matches
 
     def __iter__(self):
-        for path in sorted(self.file_list):
-            yield path
+        yield from sorted(self.file_list)
