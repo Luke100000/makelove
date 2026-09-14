@@ -4,7 +4,7 @@ import re
 import sys
 
 
-class FileList(object):
+class FileList:
     def __init__(self, path):
         self.dir = path
         self.full_list = []
