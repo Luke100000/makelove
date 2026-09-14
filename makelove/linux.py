@@ -11,8 +11,7 @@ from PIL import Image, UnidentifiedImageError
 import appdirs
 
 from .util import fuse_files, tmpfile, parse_love_version, ask_yes_no
-from .config import all_love_versions, should_build_artifact
-from .hooks import execute_target_hook
+from .config import should_build_artifact
 
 
 def get_appimagetool_path():

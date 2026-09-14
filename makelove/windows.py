@@ -11,7 +11,6 @@ import appdirs
 
 from .util import get_default_love_binary_dir, get_download_url, tmpfile, eprint
 from .config import should_build_artifact
-from .hooks import execute_target_hook
 
 
 def common_prefix(l):

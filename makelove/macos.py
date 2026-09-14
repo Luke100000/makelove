@@ -6,12 +6,11 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from zipfile import ZipFile
-from urllib.request import urlopen, urlretrieve, URLError
+from urllib.request import urlretrieve, URLError
 
 from PIL import Image
 
 from .util import eprint, get_default_love_binary_dir, get_download_url
-from .hooks import execute_target_hook
 
 
 def download_love(version, platform):
@@ -113,7 +112,6 @@ def get_game_icon_content(config):
         return False
 
     with io.BytesIO() as icns_f, open(icon_file, "rb") as icon_img_f:
-        icon_key = f"{config['name']}.app/Contents/Resources/icon-{config['name']}.icns"
         if icon_file.lower().endswith(".png"):
             make_icns(icns_f, icon_img_f)
             return icns_f.getvalue()
