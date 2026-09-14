@@ -24,7 +24,7 @@ class FileList:
     def include(self, pattern):
         matches = set(fnmatch.filter(self.full_list, pattern))
         if len(matches) == 0:
-            print("Warning: Pattern '{}' does not match any files".format(pattern))
+            print(f"Warning: Pattern '{pattern}' does not match any files")
         self.file_list |= matches
 
     def include_raw(self, item):
@@ -35,12 +35,12 @@ class FileList:
         elif not os.path.exists(path):
             raise FileNotFoundError
         else:
-            print("'{}' is not a file!".format(path))
+            print(f"'{path}' is not a file!")
 
     def exclude(self, pattern):
         matches = set(fnmatch.filter(self.file_list, pattern))
         if len(matches) == 0:
-            print("Warning: Pattern '{}' does not match any files".format(pattern))
+            print(f"Warning: Pattern '{pattern}' does not match any files")
         self.file_list -= matches
 
     def __iter__(self):

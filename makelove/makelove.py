@@ -45,7 +45,7 @@ def files_in_dir(dir_path):
 def bump_version(version):
     m = re.search(r"\d+$", version)
     if not m:
-        sys.exit("Could not bump version '{}'".format(version))
+        sys.exit(f"Could not bump version '{version}'")
     num = int(m.group(0)) + 1
     return version[: m.start(0)] + str(num)
 
@@ -131,7 +131,7 @@ def assemble_game_directory(args, config, game_directory):
                 try:
                     file_list.include_raw(item)
                 except FileNotFoundError:
-                    sys.exit("Could not find git-tracked file '{}'".format(item))
+                    sys.exit(f"Could not find git-tracked file '{item}'")
         elif rule[0] == "-":
             file_list.exclude(rule[1:])
         elif rule[0] == "+":
@@ -259,7 +259,7 @@ def main():
             version = package_version("makelove")
         except PackageNotFoundError:
             version = "unknown"
-        print("makelove {}".format(version))
+        print(f"makelove {version}")
         sys.exit(0)
 
     if not os.path.isfile("main.lua"):
@@ -276,7 +276,7 @@ def main():
     version = get_build_version(args, config)
 
     if version != None:
-        print("Building version '{}'".format(version))
+        print(f"Building version '{version}'")
 
     if "all" in args.disabled_hooks:
         args.disabled_hooks = all_hooks
@@ -328,7 +328,7 @@ def main():
             )
 
         create_love_file(game_directory, love_file_path)
-        print("Created {}".format(love_file_path))
+        print(f"Created {love_file_path}")
 
         if config.get("keep_game_directory", False):
             print("Keeping game directory because 'keep_game_directory' is true")
@@ -338,7 +338,7 @@ def main():
         print(".love file already exists. Not rebuilding.")
 
     for target in targets:
-        print(">> Building target {}".format(target))
+        print(f">> Building target {target}")
 
         target_directory = os.path.join(build_directory, target)
         # If target_directory is not a directory, let it throw an exception
@@ -356,7 +356,7 @@ def main():
         elif target == "lovejs":
             build_lovejs(config, version, target, target_directory, love_file_path)
 
-        print("Target {} complete".format(target))
+        print(f"Target {target} complete")
 
     if not "postbuild" in args.disabled_hooks:
         execute_hooks("postbuild", config, version, targets, build_directory)

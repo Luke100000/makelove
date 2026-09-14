@@ -21,4 +21,4 @@ for platform in ["win32", "win64", "macos"]:
         except HTTPError as exc:
             code = exc.code
         assert code == 200
-        print("{} {}: {} => {}".format(platform, version, url, code))
+        print(f"{platform} {version}: {url} => {code}")

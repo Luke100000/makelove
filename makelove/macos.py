@@ -20,15 +20,15 @@ def download_love(version, platform):
     would lose data about symlinks when building on windows
     """
     target_path = get_default_love_binary_dir(version, platform)
-    print("Downloading love binaries to: '{}'".format(target_path))
+    print(f"Downloading love binaries to: '{target_path}'")
 
     os.makedirs(target_path, exist_ok=True)
     try:
         download_url = get_download_url(version, platform)
-        print("Downloading '{}'..".format(download_url))
+        print(f"Downloading '{download_url}'..")
         urlretrieve(download_url, os.path.join(target_path, "love.zip"))
     except URLError as exc:
-        eprint("Could not download löve: {}".format(exc))
+        eprint(f"Could not download löve: {exc}")
         eprint(
             "If there is in fact no download on GitHub for this version, specify 'love_binaries' manually."
         )
@@ -147,7 +147,7 @@ def get_info_plist_content(config, version):
         "CFBundleShortVersionString": version or config["love_version"],
         "CFBundleName": config["name"],
         "NSHumanReadableCopyright": "© 2006-2020 LÖVE Development Team",
-        "CFBundleIdentifier": f"tld.yourgamename",
+        "CFBundleIdentifier": "tld.yourgamename",
     }
 
     if "macos" in config and "app_metadata" in config["macos"]:
@@ -162,10 +162,10 @@ def build_macos(config, version, target, target_directory, love_file_path):
         love_binaries = config[target]["love_binaries"]
     else:
         assert "love_version" in config
-        print("No love binaries specified for target {}".format(target))
+        print(f"No love binaries specified for target {target}")
         love_binaries = get_default_love_binary_dir(config["love_version"], target)
         if os.path.isdir(love_binaries):
-            print("Love binaries already present in '{}'".format(love_binaries))
+            print(f"Love binaries already present in '{love_binaries}'")
         else:
             download_love(config["love_version"], target)
 

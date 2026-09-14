@@ -22,7 +22,7 @@ def strtobool(value):
         return True
     if value in ("n", "no", "f", "false", "off", "0"):
         return False
-    raise ValueError("invalid truth value {!r}".format(value))
+    raise ValueError(f"invalid truth value {value!r}")
 
 
 def tmpfile(*args, **kwargs):
@@ -64,7 +64,7 @@ def ask_yes_no(question, default=None):
 def prompt(prompt_str, default=None):
     default_str = ""
     if default != None:
-        default_str = " [{}]".format(default)
+        default_str = f" [{default}]"
     while True:
         sys.stdout.write(prompt_str + default_str + ": ")
         s = input()
@@ -89,7 +89,7 @@ def get_download_url(version, platform):
     # Other platforms don't use this function
     assert platform in ["win32", "win64", "macos"]
 
-    url = "https://github.com/love2d/love/releases/download/{}".format(version)
+    url = f"https://github.com/love2d/love/releases/download/{version}"
 
     parsed_version = parse_love_version(version)
     if parsed_version[0] <= 8:
@@ -102,7 +102,7 @@ def get_download_url(version, platform):
     if version == "11.0":
         version = "11.0.0"
 
-    return "{}/love-{}-{}.zip".format(url, version, platform)
+    return f"{url}/love-{version}-{platform}.zip"
 
 
 def fuse_files(dest_path, *src_paths):

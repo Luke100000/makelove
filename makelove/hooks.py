@@ -32,7 +32,7 @@ def execute_hook(command, config, version, targets, build_directory):
     try:
         subprocess.run(command_replaced, shell=True, check=True, env=env)
     except Exception as e:
-        sys.exit("Hook '{}' failed: {}".format(command, e))
+        sys.exit(f"Hook '{command}' failed: {e}")
 
     new_config = get_config(tmp_config_path)
     os.remove(tmp_config_path)
@@ -47,4 +47,4 @@ def execute_target_hook(command, target):
     try:
         subprocess.run(command, shell=True, check=True, env=env)
     except Exception as e:
-        sys.exit("Build target hook '{}' failed: {}".format(command, e))
+        sys.exit(f"Build target hook '{command}' failed: {e}")

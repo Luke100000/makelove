@@ -7,15 +7,13 @@ class Section:
             raise ValueError
         for param in obj:
             if param not in self.params:
-                raise ValueError("Unknown parameter '{}'".format(param))
+                raise ValueError(f"Unknown parameter '{param}'")
             try:
                 self.params[param].validate(obj[param])
             except ValueError as exc:
                 if len(str(exc)) == 0:
                     raise ValueError(
-                        "Invalid value for parameter '{}'. Expected: {}".format(
-                            param, self.params[param].description()
-                        )
+                        f"Invalid value for parameter '{param}'. Expected: {self.params[param].description()}"
                     )
                 else:
                     raise
@@ -101,7 +99,7 @@ class List:
         return obj
 
     def description(self):
-        return "List({})".format(self.value_validator.description())
+        return f"List({self.value_validator.description()})"
 
 
 class Dict:
@@ -118,9 +116,7 @@ class Dict:
         return obj
 
     def description(self):
-        return "Dictionary(key = {}, value = {})".format(
-            self.key_validator.description(), self.value_validator.description()
-        )
+        return f"Dictionary(key = {self.key_validator.description()}, value = {self.value_validator.description()})"
 
 
 class Option:

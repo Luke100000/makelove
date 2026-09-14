@@ -26,17 +26,17 @@ def common_prefix(l):
 
 def download_love(version, platform):
     target_path = get_default_love_binary_dir(version, platform)
-    print("Downloading love binaries to: '{}'".format(target_path))
+    print(f"Downloading love binaries to: '{target_path}'")
 
     os.makedirs(target_path, exist_ok=True)
     try:
         download_url = get_download_url(version, platform)
-        print("Downloading '{}'..".format(download_url))
+        print(f"Downloading '{download_url}'..")
         with urlopen(download_url) as response:
             with ZipFile(BytesIO(response.read())) as zipfile:
                 zipfile.extractall(target_path)
     except URLError as exc:
-        eprint("Could not download löve: {}".format(exc))
+        eprint(f"Could not download löve: {exc}")
         eprint(
             "If there is in fact no download on GitHub for this version, specify 'love_binaries' manually."
         )
@@ -63,10 +63,10 @@ def prepare_rcedit():
             # I don't use the latest release, so I can be sure that the executable behaves as expected
             rcedit_download_url = "https://github.com/electron/rcedit/releases/download/v1.1.1/rcedit-x64.exe"
             os.makedirs(os.path.dirname(rcedit_path), exist_ok=True)
-            print("Downloading '{}'..".format(rcedit_download_url))
+            print(f"Downloading '{rcedit_download_url}'..")
             urlretrieve(rcedit_download_url, rcedit_path)
         except URLError as exc:
-            sys.exit("Could not download rcedit: {}".format(exc))
+            sys.exit(f"Could not download rcedit: {exc}")
 
 
 def can_set_metadata(platform):
@@ -138,7 +138,7 @@ def get_rcedit_command():
                 sys.exit(1)
         return ["wine", rcedit_path]
     else:
-        sys.exit("Can not execute rcedit on ths platform ({})".format(sys.platform))
+        sys.exit(f"Can not execute rcedit on ths platform ({sys.platform})")
 
 
 def set_exe_metadata(exe_path, metadata, icon_file):
@@ -150,7 +150,7 @@ def set_exe_metadata(exe_path, metadata, icon_file):
     temp_ico_path = None
     if icon_file != None:
         if not os.path.isfile(icon_file):
-            sys.exit("Icon file does not exist '{}'".format(icon_file))
+            sys.exit(f"Icon file does not exist '{icon_file}'")
         if icon_file.lower().endswith(".ico"):
             args.extend(["--set-icon", icon_file])
         else:
@@ -160,11 +160,11 @@ def set_exe_metadata(exe_path, metadata, icon_file):
                 img.save(temp_ico_path)
                 args.extend(["--set-icon", temp_ico_path])
             except FileNotFoundError as exc:
-                sys.exit("Could not find icon file: {}".format(exc))
+                sys.exit(f"Could not find icon file: {exc}")
             except UnidentifiedImageError as exc:
-                sys.exit("Could not read icon file: {}".format(exc))
+                sys.exit(f"Could not read icon file: {exc}")
             except IOError as exc:
-                sys.exit("Could not convert icon to .ico: {}".format(exc))
+                sys.exit(f"Could not convert icon to .ico: {exc}")
 
     res = subprocess.run(args, capture_output=True)
     if temp_ico_path:
@@ -178,10 +178,10 @@ def build_windows(config, version, target, target_directory, love_file_path):
         love_binaries = config[target]["love_binaries"]
     else:
         assert "love_version" in config
-        print("No love binaries specified for target {}".format(target))
+        print(f"No love binaries specified for target {target}")
         love_binaries = get_default_love_binary_dir(config["love_version"], target)
         if os.path.isdir(love_binaries):
-            print("Love binaries already present in '{}'".format(love_binaries))
+            print(f"Love binaries already present in '{love_binaries}'")
         else:
             download_love(config["love_version"], target)
 
@@ -213,7 +213,7 @@ def build_windows(config, version, target, target_directory, love_file_path):
         )
     else:
         print(
-            "Cannot set exe metadata on this platform ({})".format(sys.platform),
+            f"Cannot set exe metadata on this platform ({sys.platform})",
             file=sys.stderr,
         )
         print("If you are using a POSIX-compliant system, try installing WINE.")
@@ -246,7 +246,7 @@ def build_windows(config, version, target, target_directory, love_file_path):
         elif os.path.isdir(k):
             shutil.copytree(k, path)
         else:
-            sys.exit("Cannot copy archive file '{}'".format(k))
+            sys.exit(f"Cannot copy archive file '{k}'")
 
     if target in config and "shared_libraries" in config[target]:
         for f in config[target]["shared_libraries"]:
