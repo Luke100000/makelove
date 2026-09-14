@@ -63,6 +63,22 @@ There are a number of arguments you can specify to customize the build (e.g. to 
 makelove --help
 ```
 
+## Opening builds
+
+`--open` opens (Windows, Appimage) or serves (lovejs) builds:
+
+```
+makelove lovejs --open [IP[:PORT]]
+```
+
+By default `127.0.0.1:.8000` is used.
+
+Windows builds use `wine` on Linux. Override the launcher with `MAKELOVE_WINDOWS_OPEN_COMMAND`:
+
+```sh
+MAKELOVE_WINDOWS_OPEN_COMMAND='proton run' makelove win64 --open
+```
+
 ## Configuration
 
 All possible configuration values are shown and explained in [makelove_full.toml](makelove_full.toml) (**You should look at this!**) (not a valid makelove configuration).
