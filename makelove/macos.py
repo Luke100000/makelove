@@ -57,7 +57,7 @@ def make_icns(iconfile, icon_image_file):
     # must all be square (width=height) and of standard pixel sizes
     width, height = icon_image.size  # a 2-tuple
     if width != height:
-        eprint("Invalid image size, discarded: %d x %d." % (width, height))
+        eprint(f"Invalid image size, discarded: {width:d} x {height:d}.")
         sys.exit(1)
 
     sizetotypes = {
