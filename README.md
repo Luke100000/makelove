@@ -25,6 +25,12 @@ To use makelove you need to install Python 3.8 or later and then execute (probab
 pip3 install makelove
 ```
 
+To install a local checkout as a command-line tool while developing it:
+
+```
+python3 -m pip install -e .
+```
+
 Then navigate to the directory containing the `main.lua` of your game (your game directory) and execute:
 
 ```
