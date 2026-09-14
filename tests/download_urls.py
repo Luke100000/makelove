@@ -1,8 +1,8 @@
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
-from makelove.util import get_download_url
 from makelove.config import all_love_versions
+from makelove.util import get_download_url
 
 platform_versions = {
     "win32": all_love_versions[: all_love_versions.index("0.6.1")],

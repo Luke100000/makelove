@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 import argparse
-import os
-import shutil
-import sys
 import json
-import subprocess
-from email.utils import formatdate
-from importlib.metadata import PackageNotFoundError, version as package_version
-import zipfile
+import os
 import re
+import shutil
+import subprocess
+import sys
+import zipfile
+from email.utils import formatdate
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 
-from .config import get_config, all_targets, init_config_assistant
-from .hooks import execute_hook
+from .config import all_targets, get_config, init_config_assistant
 from .filelist import FileList
+from .hooks import execute_hook
 from .jsonfile import JsonFile
-from .windows import build_windows
 from .linux import build_linux
-from .macos import build_macos
 from .lovejs import build_lovejs
+from .macos import build_macos
+from .windows import build_windows
 
 all_hooks = ["prebuild", "postbuild"]
 

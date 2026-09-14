@@ -3,10 +3,10 @@ import os
 import plistlib
 import struct
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from urllib.request import URLError, urlretrieve
 from zipfile import ZipFile
-from urllib.request import urlretrieve, URLError
 
 from PIL import Image
 

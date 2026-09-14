@@ -1,17 +1,17 @@
+import json
 import os
-import sys
-from urllib.request import urlretrieve, urlopen, URLError
+import re
 import shutil
 import subprocess
-import re
-import json
+import sys
 from collections import namedtuple
+from urllib.request import URLError, urlopen, urlretrieve
 
-from PIL import Image, UnidentifiedImageError
 import appdirs
+from PIL import Image, UnidentifiedImageError
 
-from .util import fuse_files, tmpfile, parse_love_version, ask_yes_no
 from .config import should_build_artifact
+from .util import ask_yes_no, fuse_files, parse_love_version, tmpfile
 
 
 def get_appimagetool_path():

@@ -4,8 +4,8 @@ import os
 import sys
 import uuid
 from pathlib import Path
+from urllib.request import URLError, urlretrieve
 from zipfile import ZipFile
-from urllib.request import urlretrieve, URLError
 
 from .util import eprint, get_default_love_binary_dir, parse_love_version
 

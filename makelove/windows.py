@@ -1,16 +1,16 @@
-import sys
 import os
 import shutil
-from zipfile import ZipFile
-from urllib.request import urlopen, urlretrieve, URLError
-from io import BytesIO
 import subprocess
+import sys
+from io import BytesIO
+from urllib.request import URLError, urlopen, urlretrieve
+from zipfile import ZipFile
 
-from PIL import Image, UnidentifiedImageError
 import appdirs
+from PIL import Image, UnidentifiedImageError
 
-from .util import get_default_love_binary_dir, get_download_url, tmpfile, eprint
 from .config import should_build_artifact
+from .util import eprint, get_default_love_binary_dir, get_download_url, tmpfile
 
 
 def common_prefix(l):
