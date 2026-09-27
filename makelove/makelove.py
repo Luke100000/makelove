@@ -171,7 +171,7 @@ def assemble_game_directory(args, config, game_directory):
 
 def create_love_file(game_dir, love_file_path):
     love_archive = zipfile.ZipFile(love_file_path, "w")
-    for path in files_in_dir(game_dir):
+    for path in sorted(files_in_dir(game_dir)):
         arcname = os.path.normpath(os.path.relpath(path, game_dir))
         love_archive.write(path, arcname=arcname)
     love_archive.close()
